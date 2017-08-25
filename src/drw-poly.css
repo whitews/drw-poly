@@ -1,0 +1,6 @@
+polygon, .handle {
+    stroke: lime;
+    stroke-width: 1.5px;
+    fill: lime;
+    fill-opacity: 0.25;
+}
