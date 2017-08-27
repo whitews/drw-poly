@@ -55,7 +55,6 @@ drw_polygon.directive('drwPolygon', [function () {
             });
 
             scope.$watch('regions', function () {
-                console.log('regions changed ' + scope.regions.length);
                 // Clear all existing polygons and handles
                 $('svg#drw-poly > polygon').remove();
                 $('svg#drw-poly > rect').remove();
