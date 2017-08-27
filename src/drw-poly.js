@@ -54,6 +54,26 @@ drw_polygon.directive('drwPolygon', [function () {
                 image.src = scope.imgUrl;
             });
 
+            scope.$watch('regions', function () {
+                console.log('regions changed ' + scope.regions.length);
+                // Clear all existing polygons and handles
+                $('svg#drw-poly > polygon').remove();
+                $('svg#drw-poly > rect').remove();
+
+                scope.regions.forEach(function (region) {
+                    create_region();
+                    region.forEach(function (point) {
+                        create_point(
+                            Math.round(point[0] / img_scale.x),
+                            Math.round(point[1] / img_scale.y)
+                        )
+                    });
+                });
+
+                deactivate_region();
+                reindex_polygons();
+            });
+
             var deactivate_region = function () {
                 $('rect.handle').remove();
                 has_active_region = false;
@@ -125,6 +145,10 @@ drw_polygon.directive('drwPolygon', [function () {
             };
 
             var select_region = function (evt) {
+                if (!scope.enabled) {
+                    return false;
+                }
+
                 if (!has_active_region && evt.button === 0) {
                     evt.stopPropagation();
 
@@ -155,38 +179,31 @@ drw_polygon.directive('drwPolygon', [function () {
                 scope.regions.splice(region_index, 1);
             };
 
-            var mouseup = function(evt) {
-                if (!scope.enabled) {
-                    return false;
-                }
+            var create_region = function () {
+                new_region_index = scope.regions.length;
+                scope.regions.push([]);
+                has_active_region = true;
 
-                if (evt.button === 2) {
-                    if (evt.target.tagName === 'polygon') {
-                        delete_region(evt.target);
-                    }
+                scope.poly_el = document.createElementNS(
+                    'http://www.w3.org/2000/svg',
+                    'polygon'
+                );
+                scope.poly_el.setAttribute('drw-index', new_region_index);
+                scope.active_poly = $(scope.poly_el).appendTo($svg);
+                $(scope.active_poly).bind('contextmenu', function (evt) {
                     return false;
-                }
+                });
+                $(scope.active_poly).on('mouseup', select_region);
+            };
 
+            var create_point = function (x, y) {
                 var point = $svg[0].createSVGPoint();
-                point.x = evt.offsetX;
-                point.y = evt.offsetY;
+                point.x = x;
+                point.y = y;
 
                 if (!has_active_region) {
                     // create new region
-                    new_region_index = scope.regions.length;
-                    scope.regions.push([]);
-                    has_active_region = true;
-
-                    scope.poly_el = document.createElementNS(
-                        'http://www.w3.org/2000/svg',
-                        'polygon'
-                    );
-                    scope.poly_el.setAttribute('drw-index', new_region_index);
-                    scope.active_poly = $(scope.poly_el).appendTo($svg);
-                    $(scope.active_poly).bind('contextmenu', function (evt) {
-                        return false;
-                    });
-                    $(scope.active_poly).on('mouseup', select_region);
+                    create_region();
                 }
 
                 scope.poly_el.points.appendItem(point);
@@ -200,6 +217,21 @@ drw_polygon.directive('drwPolygon', [function () {
 
                 var handle = setup_handle(point, scope.poly_el);
                 scope.active_poly = $(handle).appendTo($svg);
+            };
+
+            var mouseup = function(evt) {
+                if (!scope.enabled) {
+                    return false;
+                }
+
+                if (evt.button === 2) {
+                    if (evt.target.tagName === 'polygon') {
+                        delete_region(evt.target);
+                    }
+                    return false;
+                }
+
+                create_point(evt.offsetX, evt.offsetY);
             };
 
             var watch_keypress = function () {
