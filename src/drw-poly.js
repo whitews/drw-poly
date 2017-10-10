@@ -201,21 +201,7 @@ drw_polygon.directive('drwPolygon', [function () {
                 point.x = x;
                 point.y = y;
 
-                if (!has_active_region) {
-                    // create new region
-                    new_region_index = scope.regions.length;
-                    scope.regions.push([]);
-                    create_region(new_region_index);
-                }
-
                 scope.poly_el.points.appendItem(point);
-                var region_index = parseInt(scope.poly_el.attributes['drw-index'].value);
-                scope.regions[region_index].push(
-                    [
-                        Math.round(point.x * img_scale.x),
-                        Math.round(point.y * img_scale.y)
-                    ]
-                );
 
                 var handle = setup_handle(point, scope.poly_el);
                 scope.active_poly = $(handle).appendTo($svg);
@@ -233,6 +219,25 @@ drw_polygon.directive('drwPolygon', [function () {
                     return false;
                 }
 
+                // might be a new region, let's check
+                if (!has_active_region) {
+                    // create new region
+                    new_region_index = scope.regions.length;
+                    scope.regions.push([]);
+                    create_region(new_region_index);
+                }
+
+                var region_index = parseInt(scope.poly_el.attributes['drw-index'].value);
+
+                // save point to the user's data
+                scope.regions[region_index].push(
+                    [
+                        Math.round(evt.offsetX * img_scale.x),
+                        Math.round(evt.offsetY * img_scale.y)
+                    ]
+                );
+
+                // draw the point
                 create_point(evt.offsetX, evt.offsetY);
             };
 
