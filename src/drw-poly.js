@@ -59,8 +59,11 @@ drw_polygon.directive('drwPolygon', [function () {
                 $('svg#drw-poly > polygon').remove();
                 $('svg#drw-poly > rect').remove();
 
+                var new_region_index = 0;
+
                 scope.regions.forEach(function (region) {
-                    create_region();
+                    create_region(new_region_index);
+                    new_region_index++;
                     region.forEach(function (point) {
                         create_point(
                             Math.round(point[0] / img_scale.x),
@@ -178,9 +181,7 @@ drw_polygon.directive('drwPolygon', [function () {
                 scope.regions.splice(region_index, 1);
             };
 
-            var create_region = function () {
-                new_region_index = scope.regions.length;
-                scope.regions.push([]);
+            var create_region = function (new_region_index) {
                 has_active_region = true;
 
                 scope.poly_el = document.createElementNS(
@@ -202,7 +203,9 @@ drw_polygon.directive('drwPolygon', [function () {
 
                 if (!has_active_region) {
                     // create new region
-                    create_region();
+                    new_region_index = scope.regions.length;
+                    scope.regions.push([]);
+                    create_region(new_region_index);
                 }
 
                 scope.poly_el.points.appendItem(point);
