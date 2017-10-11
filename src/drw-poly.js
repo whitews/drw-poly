@@ -87,10 +87,10 @@ drw_polygon.directive('drwPolygon', [function () {
                     'rect'
                 );
                 handle.setAttribute('class', 'handle');
-                handle.setAttribute('x', (point.x - 3).toString());
-                handle.setAttribute('y', (point.y - 3).toString());
-                handle.setAttribute('width', '6');
-                handle.setAttribute('height', '6');
+                handle.setAttribute('x', (point.x - 4).toString());
+                handle.setAttribute('y', (point.y - 4).toString());
+                handle.setAttribute('width', '8');
+                handle.setAttribute('height', '8');
                 $(handle).draggable(
                     {
                         start: function (event) {
@@ -99,8 +99,8 @@ drw_polygon.directive('drwPolygon', [function () {
                         drag: function (event) {
                             point.x = event.offsetX;
                             point.y = event.offsetY;
-                            event.target.setAttribute('x', (point.x - 3).toString());
-                            event.target.setAttribute('y', (point.y - 3).toString());
+                            event.target.setAttribute('x', (point.x - 4).toString());
+                            event.target.setAttribute('y', (point.y - 4).toString());
                         },
                         stop: function (event) {
                             var region_index = parseInt(polygon.attributes['drw-index'].value);
